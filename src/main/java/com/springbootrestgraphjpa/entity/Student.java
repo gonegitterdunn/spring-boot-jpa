@@ -14,23 +14,29 @@ import javax.persistence.*;
 @Table(name = "student")
 public class Student {
 
- @Id
- @GeneratedValue(strategy = GenerationType.IDENTITY)
- @Column(name = "id")
- private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Long id;
 
- @Column(name = "first_name")
- private String firstName;
+  @Column(name = "first_name")
+  private String firstName;
 
- @Column(name = "last_name")
- private String lastName;
+  @Column(name = "last_name")
+  private String lastName;
 
- @Column(name = "email")
- private String email;
+  @Column(name = "email")
+  private String email;
 
- public Student(CreateStudentRequest createStudentRequest) {
-  this.firstName = createStudentRequest.getFirstName();
-  this.lastName = createStudentRequest.getLastName();
-  this.email = createStudentRequest.getEmail();
- }
+  @Transient // Is not a column in the 'Student' table in the db
+  private String fullName;
+
+  public Student(CreateStudentRequest createStudentRequest) {
+    this.firstName = createStudentRequest.getFirstName();
+    this.lastName = createStudentRequest.getLastName();
+    this.email = createStudentRequest.getEmail();
+    this.fullName =
+        String.format(
+            "%s %s", createStudentRequest.getFirstName(), createStudentRequest.getLastName());
+  }
 }

@@ -3,8 +3,13 @@ package com.springbootrestgraphjpa.service;
 import com.springbootrestgraphjpa.entity.Student;
 import com.springbootrestgraphjpa.repository.StudentRepository;
 import com.springbootrestgraphjpa.request.CreateStudentRequest;
+import com.springbootrestgraphjpa.request.InQueryRequest;
 import com.springbootrestgraphjpa.request.UpdateStudentRequest;
+import com.springbootrestgraphjpa.response.StudentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -49,8 +54,58 @@ public class StudentService {
     return studentRepository.save(student);
   }
 
-  public String deleteStudent(long id) {
+  public String deleteStudent(final long id) {
     studentRepository.deleteById(id);
     return "Student has been deleted successfully";
+  }
+
+  public List<Student> getByFirstName(final String firstName){
+    return studentRepository.findByFirstName(firstName);
+  }
+
+  public Student getByFirstNameAndLastName(final String firstName, final String lastName) {
+    return studentRepository.getByLastNameAndFirstName(firstName, lastName);
+  }
+
+  public List<Student> getByFirstNameOrLastName(final String firstName, final String lastName) {
+    return studentRepository.findByFirstNameOrLastName(firstName, lastName);
+  }
+
+  public List<Student> getByFirstNameIn(final InQueryRequest inQueryRequest) {
+    return studentRepository.findByFirstNameIn(inQueryRequest.getFirstNames());
+  }
+
+  // select * from student limit <pageSize> offset <pageNo * pageSize>
+  public List<Student> getAllStudentsWithPagination(final int pageNo, final int pageSize) {
+    Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+
+    return studentRepository.findAll(pageable).getContent();
+  }
+
+  // select * from student order by first_name, last_name asc
+  public List<Student> getAllStudentsWithSorting() {
+    Sort sort = Sort.by(Sort.Direction.ASC, "firstName", "lastName");
+
+    return studentRepository.findAll(sort);
+  }
+
+  public List<Student> like(final String firstName) {
+    return studentRepository.findByFirstNameContains(firstName);
+  }
+
+  public List<Student> startsWith(final String firstName) {
+    return studentRepository.findByFirstNameStartsWith(firstName);
+  }
+
+  public List<Student> endsWith(final String firstName) {
+    return studentRepository.findByFirstNameEndsWith(firstName);
+  }
+
+  public Integer updateStudentWithJpql(final long id, final String firstName) {
+    return studentRepository.updateFirstName(id, firstName);
+  }
+
+  public Integer deleteByFirstName(final String firstname) {
+    return studentRepository.deleteByFirstName(firstname);
   }
 }

@@ -12,21 +12,24 @@ import lombok.Setter;
 @AllArgsConstructor
 public class StudentResponse {
 
- private long id;
+  private long id;
 
- @JsonProperty("first_name")
- private String firstName;
+  @JsonProperty("first_name")
+  private String firstName;
 
- @JsonProperty("last_name")
- private String lastName;
+  @JsonProperty("last_name")
+  private String lastName;
 
- private String email;
+  private String email;
 
- public StudentResponse(final Student student) {
-  this.id = student.getId();
-  this.firstName = student.getFirstName();
-  this.lastName = student.getLastName();
-  this.email = student.getEmail();
- }
+  @JsonProperty("full_name")
+  private String fullName;
 
+  public StudentResponse(final Student student) {
+    this.id = student.getId();
+    this.firstName = student.getFirstName();
+    this.lastName = student.getLastName();
+    this.email = student.getEmail();
+    this.fullName = String.format("%s %s", student.getFirstName(), student.getLastName());
+  }
 }
