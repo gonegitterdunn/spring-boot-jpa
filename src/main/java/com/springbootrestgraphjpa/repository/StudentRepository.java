@@ -1,7 +1,6 @@
 package com.springbootrestgraphjpa.repository;
 
 import com.springbootrestgraphjpa.entity.Student;
-import com.springbootrestgraphjpa.request.InQueryRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -45,8 +44,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
   // select * from student where first_name like '%n'
   List<Student> findByFirstNameEndsWith(final String firstName);
 
-  @Modifying      // With JPQL when modifying data
-  @Transactional  // With JPQL when modifying data
+  @Modifying // With JPQL when modifying data
+  @Transactional // With JPQL when modifying data
   @Query("Update Student set firstName = :firstName where id = :id")
   // Modifying can either be 'void' or 'Integer' typed methods
   Integer updateFirstName(final long id, final String firstName);
@@ -55,4 +54,14 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
   @Transactional
   @Query("Delete From Student where firstName = :firstName")
   Integer deleteByFirstName(final String firstName);
+
+  // JPA
+  // 'AddressCity' -> called on city field of Address
+  // select * from student s inner join address a on s.address_id = a.id where a-city = "gotham";
+  List<Student> findByAddressCity(final String city);
+
+  // JPQL
+  @Query("From Student where address.city = :city")
+  List<Student> getByAddressCity(final String city);
+
 }

@@ -1,11 +1,14 @@
 package com.springbootrestgraphjpa.service;
 
+import com.springbootrestgraphjpa.entity.Address;
 import com.springbootrestgraphjpa.entity.Student;
+import com.springbootrestgraphjpa.entity.Subject;
+import com.springbootrestgraphjpa.repository.AddressRepository;
 import com.springbootrestgraphjpa.repository.StudentRepository;
+import com.springbootrestgraphjpa.repository.SubjectRepository;
 import com.springbootrestgraphjpa.request.CreateStudentRequest;
 import com.springbootrestgraphjpa.request.InQueryRequest;
 import com.springbootrestgraphjpa.request.UpdateStudentRequest;
-import com.springbootrestgraphjpa.response.StudentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,14 +16,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class StudentService {
 
   @Autowired StudentRepository studentRepository;
+  @Autowired AddressRepository addressRepository;
+  @Autowired SubjectRepository subjectRepository;
 
   public List<Student> getAllStudents() {
     return studentRepository.findAll();
@@ -29,7 +34,44 @@ public class StudentService {
   public Student createStudent(final CreateStudentRequest createStudentRequest) {
     Student student = new Student(createStudentRequest);
 
-    return studentRepository.save(student);
+    Address address = new Address();
+    address.setStreet(createStudentRequest.getStreet());
+    address.setCity(createStudentRequest.getCity());
+
+    address = addressRepository.save(address);
+
+    student.setAddress(address);
+    student = studentRepository.save(student);
+
+    List<Subject> subjects = new ArrayList<>();
+
+    if (!Objects.isNull(createStudentRequest.getSubjects())) {
+            Student finalStudent = student;
+            createStudentRequest
+                .getSubjects()
+                .forEach(
+                    createSubjectRequest ->
+                        subjects.add(
+                            new Subject(
+                                createSubjectRequest.getSubjectName(),
+                                createSubjectRequest.getMarksObtained(),
+                                finalStudent)));
+
+//      for (CreateSubjectsRequest createSubjectRequest : createStudentRequest.getSubjects()) {
+//        Subject subject = new Subject();
+//        subject.setSubjectName(createSubjectRequest.getSubjectName());
+//        subject.setMarksObtained(createSubjectRequest.getMarksObtained());
+//        subject.setStudent(student);
+//
+//        subjects.add(subject);
+//      }
+
+      subjectRepository.saveAll(subjects);
+    }
+
+    student.setSubjects(subjects);
+
+    return student;
   }
 
   public Student updateStudent(final UpdateStudentRequest updateStudentRequest) {
@@ -42,12 +84,12 @@ public class StudentService {
     }
 
     if (!Objects.isNull(updateStudentRequest.getLastName())
-            && !ObjectUtils.isEmpty(updateStudentRequest.getLastName())) {
+        && !ObjectUtils.isEmpty(updateStudentRequest.getLastName())) {
       student.setLastName(updateStudentRequest.getLastName());
     }
 
     if (!Objects.isNull(updateStudentRequest.getEmail())
-            && !ObjectUtils.isEmpty(updateStudentRequest.getEmail())) {
+        && !ObjectUtils.isEmpty(updateStudentRequest.getEmail())) {
       student.setEmail(updateStudentRequest.getEmail());
     }
 
@@ -59,7 +101,7 @@ public class StudentService {
     return "Student has been deleted successfully";
   }
 
-  public List<Student> getByFirstName(final String firstName){
+  public List<Student> getByFirstName(final String firstName) {
     return studentRepository.findByFirstName(firstName);
   }
 
@@ -107,5 +149,9 @@ public class StudentService {
 
   public Integer deleteByFirstName(final String firstname) {
     return studentRepository.deleteByFirstName(firstname);
+  }
+
+  public List<Student> getByCity(final String city) {
+    return studentRepository.getByAddressCity(city);
   }
 }
