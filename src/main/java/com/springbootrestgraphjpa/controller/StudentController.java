@@ -19,13 +19,10 @@ import java.util.List;
 @RequestMapping("/api/student/")
 public class StudentController {
 
-  Logger logger = LoggerFactory.getLogger(StudentController.class);
-
   @Autowired StudentService studentService;
 
   @GetMapping("getAll")
   public List<StudentResponse> getAllStudents() {
-    logger.error("Inside Error");
     List<Student> studentList = studentService.getAllStudents();
     return getStudentResponses(studentList);
   }
@@ -49,13 +46,12 @@ public class StudentController {
 
   @GetMapping("getByFirstNameIn")
   public List<StudentResponse> getByFirstNameIn(@RequestBody InQueryRequest inQueryRequest) {
-    logger.info("inQueryRequest" + inQueryRequest);
-
+    // Where @Before returns its JoinPoint
     List<StudentResponse> response =
         getStudentResponses(studentService.getByFirstNameIn(inQueryRequest));
-
-    logger.info("response: " + response);
+    // Where @After returns its JoinPoint & Object(s)
     return response;
+    // Where @AfterReturning returns its JoinPoint, Object(s), & Returning
   }
 
   @GetMapping("getAllStudentsWithPagination")

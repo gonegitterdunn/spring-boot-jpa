@@ -18,9 +18,18 @@ public class AddressController {
  @Autowired
  AddressService addressService;
 
+ @GetMapping(value = "getAddress")
+ public String getAddress() {
+  logger.debug("Inside getAddress debug");
+  logger.info("Inside getAddress info");
+
+  return "Dummy address endpoint";
+ }
+
  @GetMapping(value = "getByAddress/{id}")
  public AddressResponse getByAddress(@PathVariable final Long id) {
   logger.debug("Inside debug");
+  logger.info("Inside info");
   return new AddressResponse(addressService.getByAddress(id));
  }
 }
